@@ -32,10 +32,16 @@ private:
     //==============================================================================
     // Your private member variables go here...
     std::unique_ptr<TextButton> randomizeButton;
+    std::unique_ptr<TextButton> openButton;
     Label title;
     Label tag1;
     Label tag2;
     Label tag3;
+    Label result;
+    int numOfResults = 0;
+    bool runningRandomizer = false;
+    bool updateText = false;
+    StringArray tagsArray;
     std::unique_ptr<TagGenerator> tagGenerator;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

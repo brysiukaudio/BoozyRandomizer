@@ -71,6 +71,7 @@ void TagGenerator::getThreeTags(StringArray* array)
         inputStream.reset(dynamic_cast<WebInputStream*>(searchURL.createInputStream(false)));
         data = inputStream->readEntireStreamAsString();
         parseResults(data);
+        array->clear();
         array->add(tagNameArray[currentTags[0]]);
         array->add(tagNameArray[currentTags[1]]);
         array->add(tagNameArray[currentTags[2]]);

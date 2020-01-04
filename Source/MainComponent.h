@@ -38,13 +38,48 @@ private:
     Label tag2;
     Label tag3;
     Label result;
+    Label failedResults;
     int numOfResults = 0;
+    int totalFailed = 0;
     bool runningRandomizer = false;
     bool updateText = false;
     StringArray tagsArray;
-    std::unique_ptr<TagGenerator> tagGenerator;
+    std::shared_ptr<TagGenerator> tagGenerator;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 
 };
 
+class RandomizerTask : public ThreadWithProgressWindow
+{
+public:
+    RandomizerTask(std::shared_ptr<TagGenerator> tagGenerator, int* resultPointer, int* failedResultsPointer, StringArray* stringArray) : ThreadWithProgressWindow("Randomizing...", true, true)
+    {
+        result = resultPointer;
+        this->tagGenerator = tagGenerator;
+        array = stringArray;
+        failed = failedResultsPointer;
+    }
+
+    void run()
+    {
+        int countresult = 0;
+        int i = 0;
+        while (countresult == 0)
+        {
+            tagGenerator->getThreeTags(array);
+            countresult = tagGenerator->getResultCount();
+            setProgress(-1);
+            wait(50);
+            i++;
+        }
+        *failed = i;
+        *result = countresult;
+        bool stop = true;
+    }
+private:
+    std::shared_ptr<TagGenerator> tagGenerator;
+    int* result;
+    int* failed;
+    StringArray* array;
+};

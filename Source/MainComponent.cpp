@@ -14,7 +14,8 @@ MainComponent::MainComponent() :
     tag1("tag1", "We"),
     tag2("tag2", "Love"),
     tag3("tag3", "Boozy"),
-    result("result", "These two tags returned 0 results")
+    result("result", "These three tags returned 0 results"),
+    failedResults("failedresults", "So far 0 attempts sucked")
 {
     addAndMakeVisible(title);
     title.setFont(Font(25));
@@ -27,6 +28,8 @@ MainComponent::MainComponent() :
     tag3.setJustificationType(Justification::centred);
     addAndMakeVisible(result);
     result.setJustificationType(Justification::centred);
+    addAndMakeVisible(failedResults);
+    failedResults.setJustificationType(Justification::centred);
     
     randomizeButton.reset(new TextButton("RANDOMIZE"));
     addAndMakeVisible(randomizeButton.get());
@@ -63,7 +66,8 @@ void MainComponent::resized()
     tag1.setBounds(getWidth()/4 - 50, getHeight()/2 - 60, 100, 50);
     tag2.setBounds(getWidth()/2 - 50, getHeight() / 2 - 60, 100, 50);
     tag3.setBounds(getWidth()*3/4 - 50, getHeight() / 2 - 60, 100, 50);
-    result.setBounds(getWidth() / 2 - 200, getHeight() - 60, 400, 50);
+    result.setBounds(getWidth() / 2 - 200, getHeight() - 85, 400, 15);
+    failedResults.setBounds(getWidth() / 2 - 200, getHeight() - 60, 400, 15);
     randomizeButton->setBounds(getWidth() / 2 + 10, getHeight() /2 + 10, 100, 50);
     openButton->setBounds(getWidth() / 2 - 110, getHeight() / 2 + 10, 100, 50);
 
@@ -75,17 +79,18 @@ void MainComponent::buttonClicked(Button* buttonThatWasClicked)
     {
         StringArray array;
         int countresult = 0;
-        while (countresult == 0)
-        {
-            tagGenerator->getThreeTags(&array);
-            countresult = tagGenerator->getResultCount();
-        }
-
+        int countFailed = 0;
+        std::unique_ptr<RandomizerTask> randomTask;
+        randomTask.reset(new RandomizerTask(tagGenerator, &countresult, &countFailed, &array));
+        randomTask->runThread();
+        totalFailed += countFailed;
         tag1.setText(array[0], dontSendNotification);
         tag2.setText(array[1], dontSendNotification);
         tag3.setText(array[2], dontSendNotification);
-        String string = "These two tags returned " + String(countresult) + " results";
+        String string = "These three tags returned " + String(countresult) + " results";
         result.setText(string, dontSendNotification);
+        string = "So far " + String(totalFailed) + " attempts sucked";
+        failedResults.setText(string, dontSendNotification);
     }
 
     if (buttonThatWasClicked == openButton.get())
